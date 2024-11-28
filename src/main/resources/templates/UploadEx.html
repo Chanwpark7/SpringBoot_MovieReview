@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<input name = "uploadFiles" type = "file" multiple="multiple">
+	<button class="uploadBtn">Upload</button>
+	
+	<div class="uploadResult">
+	</div>
+	
+	<script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
+	
+	<script type="text/javascript">
+		$(document).ready(()=>{
+			//업로드된 이미지를 uploadResult에 출력하는 함수 정의
+			function showImgs(arr){
+				console.log("서버에서 받은 이미지 파일들 : "+ arr);
+				
+				var targetDiv = $('.uploadResult');
+				
+				for(let i = 0; i<arr.length;i++){
+					targetDiv.append("<img src='display?fileName=" + arr[i].thumbImageUrl +"'>");
+					targetDiv.append("<img src='display?fileName=" + arr[i].imageUrl +"'>");
+				}
+			}
+			
+			
+			$('.uploadBtn').click(()=>{
+				var formData = new FormData();
+				let inputFile = $('input[type="file"]');
+				let files = inputFile[0].files;
+				for(let i = 0; i<files.length;i++){
+					console.log(files[i]);
+					formData.append("uploadFiles",files[i]);
+				}
+				//ajax 를 통한 업로드 처리
+				$.ajax({
+					url:'/uploadAjax',
+					enctype: 'multipart/form-data',
+					processData: false,//파일 업로드 처리하기 위해서는 반드시 이것과 아래를 false 로 처리해야 함.
+					contentType: false,
+					data: formData,
+					method: 'post',
+					dataType: 'json',
+					success:(res)=>{
+						console.log(res);
+						showImgs(res);
+					},
+					error: (XHR, textStatus, err)=>{
+						console.log(textStatus);
+					}
+				})
+			})
+			
+		})
+	</script>
+</body>
+</html>

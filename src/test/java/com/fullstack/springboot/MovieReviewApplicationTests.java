@@ -1,11 +1,17 @@
 package com.fullstack.springboot;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fullstack.springboot.entity.Member;
 import com.fullstack.springboot.entity.Movie;
@@ -70,23 +76,62 @@ class MovieReviewApplicationTests {
 //		});
 //	}
 
-	void insertReview() {
-		IntStream.rangeClosed(1, 100).forEach(i -> {
-			Long mno = (long)((Math.random()*100)+1);
-			//리뷰어 번호
-			Long mid = (long)((Math.random()*100)+101);
-			
-			Member member = Member.builder()
-					.mid(mid)
-					.build();
-			
-			MovieReview movieReview = MovieReview.builder()
-					.member(member)
-					.movie(Movie.builder().mno(mno).build())
-					.grade((int)(Math.random()*5)+1)
-					.text("Review for movie "+i).build();
-			
-			movieReviewRepository.save(movieReview);
+//	void insertReview() {
+//		IntStream.rangeClosed(1, 100).forEach(i -> {
+//			Long mno = (long)((Math.random()*100)+1);
+//			//리뷰어 번호
+//			Long mid = (long)((Math.random()*100)+101);
+//			
+//			Member member = Member.builder()
+//					.mid(mid)
+//					.build();
+//			
+//			MovieReview movieReview = MovieReview.builder()
+//					.member(member)
+//					.movie(Movie.builder().mno(mno).build())
+//					.grade((int)(Math.random()*5)+1)
+//					.text("Review for movie "+i).build();
+//			
+//			movieReviewRepository.save(movieReview);
+//		});
+//	}
+	
+	//영화에 따른 리뷰정보 쿼리 테스트
+//	void testListPage() {
+//		PageRequest pageRequest = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC,"mno"));
+//		
+//		Page<Object[]> result = movieRepository.getListPageWithImgs(pageRequest);
+//		for(Object[] res : result.getContent()) {
+//			System.out.println(Arrays.toString(res));
+//		}
+//	}
+	
+//	@Transactional
+//	void testListPage() {
+//		
+//		List<Object[]> result = movieRepository.getReadPageWithImgs(1L);
+//		for(Object[] res : result) {
+//			System.out.println(Arrays.toString(res));
+//		}
+//	}
+	
+//	@Transactional
+//	void testReadPage() {
+//		Object[] result = movieReviewRepository.getReadByMno(1L);
+//		for(Object res : result) {
+//			System.out.println(res);
+//		}
+//	}
+	
+	@Transactional
+	void testGetMovieWReview() {
+		Movie movie = Movie.builder().mno(1L).build();
+		
+		List<MovieReview> result = movieReviewRepository.findByMovie(movie);
+		System.out.println("result!!!!");
+		result.forEach(t -> {
+			System.out.println(t.getReviewnum());
+			System.out.println(t.getGrade());
 		});
 	}
 }

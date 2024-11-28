@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="~{/layout/basic::setContent(~{this::content})}">
+	<th:block th:fragment="content">
+		<h1 class = "mt-4">영화 등록하기</h1>
+		
+		<!-- Post 로 register action 을 주고 영화 이름과 이미지를 업로드 할 수 있는 폼을 구성 -->
+		<form class="theForm">
+			<div class="form-group">
+				<label>Title</label>
+				<input type = "text" class= "form-control" name = "title" placeholder="Enter Title">
+			</div>
+			<div class="form-group fileForm">
+				<label>Image File</label>
+				<div class="custom-file">
+					<input type = "file" class= "custom-file-input files" id = "fileInput" multiple="multiple">
+					<label class="custom-file-label cusLabel" data-browse="Browse"></label>
+				</div>
+				<div class="box"></div>
+			</div>
+			<button type="button" class="btn btn-primary">Submit</button>
+		</form>
+		
+		<script>
+			$(document).ready(()=>{
+				//확장자 처리
+				var regex = new RegExp("(.*?)\.(exe|sh|zip|alz|tiff)$");
+				var maxSize = 10485760; // 10MB
+				
+				let checker = (fileName, fileSize)=>{
+					 if(fileSize >= maxSize){
+						alert("파일 사이즈 초과");
+						return false;
+					}
+					 if(regex.test(fileName)){
+						alert("해당 파일 확장자는 업로드 불가")
+						return false;
+					}
+					
+					return true;
+				}
+				
+				$('.btn').on("click",function(){
+	                  var fileName = $(this).val().split("\\").pop();
+	                  $(this).siblings(".cusLabel").addClass("selected").html(fileName);
+	                  
+	                  var formData = new FormData();
+	                  var inputFile = $('.files');
+	                  var files = inputFile[0].files;
+	                  var append = false;
+	                  for(let i=0; i<files.length; i++){
+	                	  
+	                     if(!checker(files[i].name, files[i].size)){
+	                        return false;
+	                     }
+	                     
+	                     console.log(files[i]);
+	                     formData.append("uploadFiles",files[i]);
+	                     append = true;
+	                  }
+	                  if(!append)return;
+	                  
+	                  for(var value of formData.values()){
+	                     console.log(value);
+	                  }
+
+	                  //파일 업로드....
+	                  $.ajax({
+	                     url : '/uploadAjax',
+	                     processData : false, //파일 업로드를 처리하기 위해서는 반드시 이것과 아래를 false 로 처리 해야함.
+	                     contentType : false,
+	                     enctype: 'multipart/form-data',
+	                     data : formData,
+	                     method : 'POST',
+	                     success:(res)=>{
+	                        console.log(res);
+	                        
+	                       $('.theForm').attr("action","/movie/register")
+	                       .attr("movieImageDTO",res)
+	 		               .attr("method","post")
+	 		               .submit();
+	                     },
+	                     error:(XHR, textStatus, err)=>{
+	                        console.log(textStatus)
+	                     }
+	                  });
+	                  
+	                  
+	               });
+			})
+		</script>
+	</th:block>
+</th:block>
+</html>
