@@ -3,6 +3,7 @@ package com.fullstack.springboot;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
@@ -10,9 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fullstack.springboot.dto.MovieDTO;
+import com.fullstack.springboot.dto.PageRequestDTO;
+import com.fullstack.springboot.dto.PageResultDTO;
 import com.fullstack.springboot.entity.Member;
 import com.fullstack.springboot.entity.Movie;
 import com.fullstack.springboot.entity.MovieImage;
@@ -21,6 +26,7 @@ import com.fullstack.springboot.repository.MemberRepository;
 import com.fullstack.springboot.repository.MovieImageRepository;
 import com.fullstack.springboot.repository.MovieRepository;
 import com.fullstack.springboot.repository.MovieReviewRepository;
+import com.fullstack.springboot.service.MovieService;
 
 @SpringBootTest
 class MovieReviewApplicationTests {
@@ -36,6 +42,9 @@ class MovieReviewApplicationTests {
 	
 	@Autowired
 	private MovieReviewRepository movieReviewRepository;
+	
+	@Autowired
+	private MovieService movieService;
 	
 	@Test
 	//Movie & MovieImage 데이터 밀어넣기 이미지수는 랜덤하게 생성
@@ -123,15 +132,29 @@ class MovieReviewApplicationTests {
 //		}
 //	}
 	
-	@Transactional
-	void testGetMovieWReview() {
-		Movie movie = Movie.builder().mno(1L).build();
+//	@Transactional
+//	void testGetMovieWReview() {
+//		Movie movie = Movie.builder().mno(1L).build();
+//		
+//		List<MovieReview> result = movieReviewRepository.findByMovie(movie);
+//		System.out.println("result!!!!");
+//		result.forEach(t -> {
+//			System.out.println(t.getReviewnum());
+//			System.out.println(t.getGrade());
+//		});
+//	}
+	
+	void testList() {
+		PageRequestDTO pageRequestDto = PageRequestDTO
+				.builder()
+				.page(1)
+				.size(10)
+				.build();
 		
-		List<MovieReview> result = movieReviewRepository.findByMovie(movie);
-		System.out.println("result!!!!");
-		result.forEach(t -> {
-			System.out.println(t.getReviewnum());
-			System.out.println(t.getGrade());
-		});
+		Pageable pageable = pageRequestDto.getPageable(Sort.by("mno").descending());
+		
+		Page<Object[]> result = movieRepository.getListPageWithImgs(pageable);
+		result.forEach(t -> System.out.println(Arrays.toString(t)));
+		
 	}
 }

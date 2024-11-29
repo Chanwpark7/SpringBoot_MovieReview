@@ -61,7 +61,6 @@ public class UploadController {
 		return result;
 	}
 	
-	
 	@PostMapping("/uploadAjax")
 	public ResponseEntity<List<UploadResultDTO>> postMethodName(@RequestParam(value = "uploadFiles") MultipartFile[] multipartFiles) {//파일 업로드 시, 파일들은 자동으로 메소드의 파라미터 배열에 담김
 		//넘겨줄 이미지 List 생성
