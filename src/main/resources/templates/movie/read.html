@@ -100,7 +100,7 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         <button type="button" class="btn btn-primary reviewSaveBtn">Save changes</button>
                         <button type="button" class="btn btn-warning modifyBtn">Modify </button>
                         <button type="button" class="btn btn-danger removeBtn">Remove </button>
@@ -115,7 +115,7 @@
                     <div class="modal-header">
                         <h5 class="modal-title">Picture</h5>
 
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close" >
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
@@ -136,6 +136,14 @@
 
         <script>
             $(document).ready(function(e) {
+            	$('.closeBtn').click(()=>{
+                    reviewModal.modal('hide');
+                 })
+                 
+                 $('.close').click(()=>{
+                    reviewModal.modal('hide');
+                 })
+            	
             	var grade = 0;
             	var mno = [[${dto.mno}]]
             	
@@ -150,14 +158,6 @@
             	})
             	
             	$('.reviewModal').modal('hide');
-            	
-            	  $('.closeBtn').click(()=>{
-                      reviewModal.modal('hide');
-                   })
-                   
-                   $('.close').click(()=>{
-                      reviewModal.modal('hide');
-                   })
             	
             	//$('.addReviewBtn')
             	var reviewModal = $('.reviewModal');
@@ -228,6 +228,76 @@
             	$('.btn-primary').click(()=>{
                     getMovieReviews();
             	})
+            	
+            	//특정 리뷰를 선택하면 스크립트가 실행되도록 함.
+            	
+            	var reviewNum;
+            	
+            	$('.reviewList').on('click','.card-body',function(){
+            		$('.reviewSaveBtn').hide();
+            		$('.removeBtn, .modifyBtn').show();
+            		
+            		var targetReview = $(this);
+            		
+            		reviewNum = targetReview.data("reviewnum");
+            		
+            		console.log("reviewNum : "+reviewNum);
+            		
+            		inputMid.val(targetReview.data("mid"));
+            		inputText.val(targetReview.find('.card-title').clone().children().remove().end().text());
+            		
+            		var grade = targetReview.find('.card-title span').html();
+            		$('.starrr a:nth-child('+grade+')').trigger('click');
+            		
+            		$('.reviewModal').modal('show');
+            	});
+            	
+            	//수정과 삭제를 위한 AJAX 정의
+        		//수정은 put, 삭제는 delete 로 해서 보냄.
+        		$('.modifyBtn').on('click',()=>{
+        			var data = {reviewnum: reviewNum,
+        					mno: mno,
+        					grade:grade,
+        					text: inputText.val(),
+        					mid: inputMid.val()};
+        			
+        			console.log("업데이트 데이터 : "+data);
+        			
+        			$.ajax({
+        				url: '/reviews/'+mno+"/"+reviewNum,
+        				type: "PUT",
+        				data: JSON.stringify(data),
+        				contentType:"application/json; charset=UTF-8",
+        				dataType:"text",
+        				success: (result)=>{
+        					console.log("서버 결과"+result);
+        					self.location.reload();
+        				}
+        			});
+        			
+        			reviewModal.modal('show');
+        		});
+            	
+        		//삭제
+        		$('.removeBtn').on('click',()=>{
+        			var data = {reviewnum: reviewNum};
+        			
+        			console.log("delete 데이터 : "+data);
+        			
+        			$.ajax({
+        				url: '/reviews/'+"delete/"+reviewNum,
+        				type: "DELETE",
+        				data: JSON.stringify(data),
+        				contentType:"application/json; charset=UTF-8",
+        				dataType:"text",
+        				success: (result)=>{
+        					console.log("서버 결과"+result);
+        					self.location.reload();
+        				}
+        			});
+        			
+        			reviewModal.modal('hide');
+        		});
             });
         </script>
 
