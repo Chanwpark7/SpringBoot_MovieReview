@@ -29,6 +29,7 @@ public class ReviewContoller {
 	
 	private final MovieReviewService movieReviewService;
 	
+	
 	@GetMapping("/{mno}/all")
 	public ResponseEntity<List<MovieReviewDTO>> getList(@PathVariable("mno") Long mno) {
 		List<MovieReviewDTO> reviewDTOList = movieReviewService.getListOfMovie(mno);
